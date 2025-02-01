@@ -4,10 +4,18 @@ import { useFrame } from '@react-three/fiber';
 import { useNavigate } from 'react-router-dom';
 import * as THREE from 'three';
 
-const VideoPlanet = ({ orbit, rotationSpeed, size, videoId }) => {
+const VideoPlanet = ({ orbit, rotationSpeed, size, videoId, videoData }) => {
   const planetRef = useRef();
   const navigate = useNavigate();
   const angle = useRef(Math.random() * Math.PI * 2);
+
+  // Create texture for video thumbnail
+  const texture = new THREE.TextureLoader().load(
+    `https://picsum.photos/200/200?random=${videoId}`,
+    undefined,
+    undefined,
+    (error) => console.error('Error loading texture:', error)
+  );
 
   useFrame(() => {
     angle.current += rotationSpeed;
@@ -19,15 +27,28 @@ const VideoPlanet = ({ orbit, rotationSpeed, size, videoId }) => {
   });
 
   return (
-    <mesh
-      ref={planetRef}
-      onClick={() => navigate(`/video/${videoId}`)}
-      onPointerOver={() => document.body.style.cursor = 'pointer'}
-      onPointerOut={() => document.body.style.cursor = 'default'}
-    >
-      <sphereGeometry args={[size, 32, 32]} />
-      <meshStandardMaterial color="blue" />
-    </mesh>
+    <group>
+      <mesh
+        ref={planetRef}
+        onClick={() => navigate(`/video/${videoId}`)}
+        onPointerOver={() => document.body.style.cursor = 'pointer'}
+        onPointerOut={() => document.body.style.cursor = 'default'}
+      >
+        <sphereGeometry args={[size, 32, 32]} />
+        <meshStandardMaterial map={texture} />
+      </mesh>
+      <Html position={[0, size + 0.5, 0]}>
+        <div style={{ 
+          color: 'white', 
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          padding: '5px',
+          borderRadius: '3px',
+          whiteSpace: 'nowrap'
+        }}>
+          {videoData.title}
+        </div>
+      </Html>
+    </group>
   );
 };
 

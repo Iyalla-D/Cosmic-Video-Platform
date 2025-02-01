@@ -2,18 +2,38 @@
 import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { Text, Html } from '@react-three/drei';
 import VideoPlanet from './VideoPlanet';
+
+const MOCK_VIDEOS = {
+  Sports: [
+    { id: 'sports-1', title: 'Amazing Basketball Shots', views: 1000 },
+    { id: 'sports-2', title: 'Soccer Highlights 2023', views: 2000 },
+    { id: 'sports-3', title: 'Tennis Masters Final', views: 1500 },
+  ],
+  Gaming: [
+    { id: 'gaming-1', title: 'Minecraft Build Battle', views: 3000 },
+    { id: 'gaming-2', title: 'Fortnite Victory', views: 2500 },
+    { id: 'gaming-3', title: 'League of Legends Pro Play', views: 4000 },
+  ],
+  Music: [
+    { id: 'music-1', title: 'Summer Hits Mix', views: 5000 },
+    { id: 'music-2', title: 'Rock Classics', views: 3500 },
+    { id: 'music-3', title: 'Jazz Night', views: 2000 },
+  ],
+};
 
 const VideoSolarSystem = ({ position, category }) => {
   const groupRef = useRef();
   
   const planets = useMemo(() => {
-    // This would come from your backend in reality
-    return Array.from({ length: 5 }, (_, i) => ({
-      id: `${category}-${i}`,
+    const categoryVideos = MOCK_VIDEOS[category] || [];
+    return categoryVideos.map((video, i) => ({
+      id: video.id,
       orbit: (i + 2) * 2,
       rotationSpeed: 0.001 / (i + 1),
-      size: 1 + Math.random() * 0.5
+      size: 1 + Math.random() * 0.5,
+      videoData: video
     }));
   }, [category]);
 
@@ -38,6 +58,7 @@ const VideoSolarSystem = ({ position, category }) => {
             rotationSpeed={planet.rotationSpeed}
             size={planet.size}
             videoId={planet.id}
+            videoData={planet.videoData}
           />
         ))}
       </group>
