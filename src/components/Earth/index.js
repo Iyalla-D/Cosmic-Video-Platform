@@ -27,7 +27,7 @@ export default function Earth() {
     // Refs
     const earthRef = useRef();
     const controlsRef = useRef();
-    const videoElementCache = useRef(new Map());
+    const videoCache = useRef(new VideoCache(MAX_CACHE_SIZE));
     const randomizedSegmentsRef = useRef(null);
     const mouseDownSegmentRef = useRef(null);
     const rotationTimeoutRef = useRef(null);
@@ -40,68 +40,11 @@ export default function Earth() {
     );
 
     // Cache Management
-    const manageCache = (newVideoId) => {
-        const cache = videoElementCache.current;
-
-        if (cache.has(newVideoId)) {
-            cache.get(newVideoId).lastUsed = Date.now();
-        }
-
-        if (cache.size >= MAX_CACHE_SIZE) {
-            const entries = Array.from(cache.entries());
-            const lruEntry = entries.reduce((oldest, current) => 
-                current[1].lastUsed < oldest[1].lastUsed ? current : oldest
-            );
-
-            const [lruKey, lruValue] = lruEntry;
-            lruValue.videoElement.pause();
-            lruValue.texture.dispose();
-            cache.delete(lruKey);
-            console.log(`Evicted video ${lruKey} from cache`);
-        }
-    };
-
     const createVideoTexture = (videoId) => {
-        const cache = videoElementCache.current;
-
-        if (cache.has(videoId)) {
-            const entry = cache.get(videoId);
-            entry.lastUsed = Date.now();
-            return Promise.resolve(entry);
-        }
-
-        return new Promise((resolve, reject) => {
-            const videoElement = document.createElement('video');
-            videoElement.src = `http://localhost:5000/stream/${videoId}`;
-            videoElement.crossOrigin = "anonymous";
-            videoElement.playsInline = true;
-            videoElement.muted = true;
-            videoElement.loop = true;
-            videoElement.autoplay = false;
-            videoElement.pause();
-
-            videoElement.oncanplay = () => {
-                const texture = new THREE.VideoTexture(videoElement);
-                texture.minFilter = THREE.LinearFilter;
-                texture.magFilter = THREE.LinearFilter;
-                texture.format = THREE.RGBAFormat;
-
-                const videoData = { 
-                    texture, 
-                    videoElement,
-                    lastUsed: Date.now() 
-                };
-
-                cache.set(videoId, videoData);
-                manageCache(videoId);
-                resolve(videoData);
-            };
-
-            videoElement.onerror = (e) => {
-                console.error(`Error loading video: ${videoElement.src}`, e);
-                reject(e);
-            };
-        });
+        return videoCache.current.createVideoTexture(
+            videoId,
+            `http://0.0.0.0:5000/stream/${videoId}`
+        );
     };
 
     // Interaction Handlers
