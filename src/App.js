@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
-import VideoPage from "./components/videopage";
+import VideoDetails from "./components/VideoPlayer/VideoDetails";
 import VideoUpload from "./components/VideoUpload/VideoUpload";
 import Earth from "./components/Earth";
 import Galaxy from "./components/Galaxy";
@@ -32,7 +32,7 @@ function App() {
                 </CanvasWrapper>
               }
             />
-            <Route path="/video/:id" element={<VideoPage />} />
+            <Route path="/video/:id" element={<VideoDetails />} />
             <Route path="/upload" element={<VideoUpload />} />
           </Routes>
         </div>
