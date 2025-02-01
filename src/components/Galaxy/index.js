@@ -104,21 +104,26 @@ export default function Galaxy({ searchTerm }) {
     // Camera animations
     if (zoomState === 'zooming-in' && searchTarget) {
       const targetPosition = searchTarget.position.clone()
-        .add(new THREE.Vector3(2, 1, 2).normalize().multiplyScalar(3))
+        .add(new THREE.Vector3(2, 1, 2).normalize().multiplyScalar(2))
 
-      camera.position.lerp(targetPosition, delta * 1.5)
+      camera.position.lerp(targetPosition, delta)
       camera.lookAt(searchTarget.position)
       
       if (camera.position.distanceTo(targetPosition) < 0.1) {
+        camera.position.copy(targetPosition)
+        camera.lookAt(searchTarget.position)
         setZoomState('zoomed')
       }
     }
 
     if (zoomState === 'zooming-out') {
-      camera.position.lerp(originalCameraPos.current, delta * 1.5)
-      camera.lookAt(new THREE.Vector3(0, 0, 0))
+      camera.position.lerp(originalCameraPos.current, delta)
+      const center = new THREE.Vector3(0, 0, 0)
+      camera.lookAt(center)
       
       if (camera.position.distanceTo(originalCameraPos.current) < 0.1) {
+        camera.position.copy(originalCameraPos.current)
+        camera.lookAt(center)
         setZoomState('idle')
         setSearchTarget(null)
       }
