@@ -66,7 +66,7 @@ export default function Earth() {
 
     const handleMouseEvent = {
         down: (event) => {
-            if (!earthRef.current || !randomizedSegmentsRef.current) return;
+            if (!earthRef.current) return;
 
             mouse.set(
                 (event.clientX / window.innerWidth) * 2 - 1,
@@ -113,7 +113,7 @@ export default function Earth() {
 
         move: (event) => {
             const tooltip = document.getElementById("tooltip");
-            if (!tooltip || !earthRef.current || !randomizedSegmentsRef.current) return;
+            if (!tooltip || !earthRef.current) return;
 
             mouse.set(
                 (event.clientX / window.innerWidth) * 2 - 1,
@@ -161,7 +161,7 @@ export default function Earth() {
         resetTooltip: (tooltip) => {
             document.body.style.cursor = 'default';
             tooltip.style.display = 'none';
-            videoCache.current.pauseAll();
+            videoElementCache.current.forEach(({ videoElement }) => videoElement.pause());
         }
     };
 
