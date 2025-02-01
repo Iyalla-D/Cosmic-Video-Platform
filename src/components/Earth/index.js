@@ -161,7 +161,7 @@ export default function Earth() {
         resetTooltip: (tooltip) => {
             document.body.style.cursor = 'default';
             tooltip.style.display = 'none';
-            videoElementCache.current.forEach(({ videoElement }) => videoElement.pause());
+            videoCache.current.pauseAll();
         }
     };
 
