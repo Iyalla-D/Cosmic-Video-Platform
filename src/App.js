@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar/Navbar";
+import Navbar from "./components/Navigation/Navbar";
 import VideoDetails from "./components/VideoPlayer/VideoDetails";
 import VideoUpload from "./components/VideoUpload/VideoUpload";
 import Earth from "./components/Earth";
