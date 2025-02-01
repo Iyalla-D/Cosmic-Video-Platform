@@ -77,10 +77,14 @@ export default function Galaxy({ searchTerm }) {
   useEffect(() => {
     if (!searchTerm) return
 
-    const randomPosition = new THREE.Vector3()
-      .randomDirection()
-      .multiplyScalar(GALAXY_CONFIG.radius * 0.8)
-      .addScalar(GALAXY_CONFIG.radius * 0.2)
+    // Generate a random position in the galaxy
+    const angle = Math.random() * Math.PI * 2
+    const radius = Math.random() * GALAXY_CONFIG.radius * 0.8 + GALAXY_CONFIG.radius * 0.2
+    const randomPosition = new THREE.Vector3(
+      Math.cos(angle) * radius,
+      (Math.random() - 0.5) * 2,
+      Math.sin(angle) * radius
+    )
 
     setSearchTarget({
       position: randomPosition,
@@ -93,26 +97,26 @@ export default function Galaxy({ searchTerm }) {
   // Animation frame updates
   useFrame((state, delta) => {
     // Galaxy rotation
-    if (zoomState === 'idle') {
-      pointsRef.current.rotation.y += 0.0005
+    if (zoomState === 'idle' && pointsRef.current) {
+      pointsRef.current.rotation.y += 0.0002
     }
 
     // Camera animations
     if (zoomState === 'zooming-in' && searchTarget) {
       const targetPosition = searchTarget.position.clone()
-        .add(new THREE.Vector3(0, 1, -2).normalize().multiplyScalar(3))
+        .add(new THREE.Vector3(2, 1, 2).normalize().multiplyScalar(3))
 
-      camera.position.lerp(targetPosition, delta * 2)
+      camera.position.lerp(targetPosition, delta * 1.5)
       camera.lookAt(searchTarget.position)
       
-      if (camera.position.distanceTo(targetPosition) < 0.5) {
+      if (camera.position.distanceTo(targetPosition) < 0.1) {
         setZoomState('zoomed')
       }
     }
 
     if (zoomState === 'zooming-out') {
-      camera.position.lerp(originalCameraPos.current, delta * 2)
-      camera.lookAt(0, 0, 0)
+      camera.position.lerp(originalCameraPos.current, delta * 1.5)
+      camera.lookAt(new THREE.Vector3(0, 0, 0))
       
       if (camera.position.distanceTo(originalCameraPos.current) < 0.1) {
         setZoomState('idle')
