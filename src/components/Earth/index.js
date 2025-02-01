@@ -3,6 +3,8 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Stars } from "@react-three/drei";
 import * as THREE from "three";
 import { useNavigate } from 'react-router-dom';
+import { vertexShader, createFragmentShader } from './shaders/globeShader';
+import { VideoCache } from './utils/videoCache';
 
 // Constants
 const INITIAL_CAMERA_POSITION = [0, 0, 8];
