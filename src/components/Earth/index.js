@@ -66,7 +66,7 @@ export default function Earth() {
 
     const handleMouseEvent = {
         down: (event) => {
-            if (!earthRef.current) return;
+            if (!earthRef.current || !randomizedSegmentsRef.current) return;
 
             mouse.set(
                 (event.clientX / window.innerWidth) * 2 - 1,
@@ -113,7 +113,7 @@ export default function Earth() {
 
         move: (event) => {
             const tooltip = document.getElementById("tooltip");
-            if (!tooltip || !earthRef.current) return;
+            if (!tooltip || !earthRef.current || !randomizedSegmentsRef.current) return;
 
             mouse.set(
                 (event.clientX / window.innerWidth) * 2 - 1,
