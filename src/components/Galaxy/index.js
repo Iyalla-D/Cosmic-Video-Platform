@@ -6,7 +6,7 @@ import VideoSolarSystem from './VideoSolarSystem';
 
 const GALAXY_CONFIG = {
   starsCount: 100000,
-  starsSize: 0.01,
+  starsSize: 0.005,
   radius: 20,
   categories: [
     { name: 'Sports', position: new THREE.Vector3(0, 0, 0) },
@@ -93,10 +93,15 @@ export default function Galaxy() {
         enableZoom
         enablePan
         enableRotate
-        zoomSpeed={0.6}
+        zoomSpeed={0.8}
         rotateSpeed={0.4}
         maxDistance={100}
-        minDistance={5}
+        minDistance={2}
+        mouseButtons={{
+          LEFT: THREE.MOUSE.ROTATE,
+          MIDDLE: THREE.MOUSE.DOLLY,
+          RIGHT: THREE.MOUSE.PAN
+        }}
       />
     </>
   );

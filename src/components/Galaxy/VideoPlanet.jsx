@@ -32,8 +32,14 @@ const VideoPlanet = ({ orbit, rotationSpeed, size, videoId, videoData }) => {
       <mesh
         ref={planetRef}
         onClick={() => navigate(`/video/${videoId}`)}
-        onPointerOver={() => document.body.style.cursor = 'pointer'}
-        onPointerOut={() => document.body.style.cursor = 'default'}
+        onPointerOver={(e) => {
+          document.body.style.cursor = 'pointer';
+          e.object.scale.multiplyScalar(1.5);
+        }}
+        onPointerOut={(e) => {
+          document.body.style.cursor = 'default';
+          e.object.scale.divideScalar(1.5);
+        }}
       >
         <sphereGeometry args={[size, 32, 32]} />
         <meshStandardMaterial map={texture} />

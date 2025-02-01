@@ -30,9 +30,9 @@ const VideoSolarSystem = ({ position, category }) => {
     const categoryVideos = MOCK_VIDEOS[category] || [];
     return categoryVideos.map((video, i) => ({
       id: video.id,
-      orbit: (i + 2) * 2,
+      orbit: (i + 2) * 1.5,  // Reduced orbit radius
       rotationSpeed: 0.001 / (i + 1),
-      size: 1 + Math.random() * 0.5,
+      size: 0.2 + Math.random() * 0.1,  // Much smaller planets
       videoData: video
     }));
   }, [category]);
