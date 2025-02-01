@@ -10,7 +10,7 @@ const Planet = ({ label, position, onComplete }) => {
   useEffect(() => {
     const timeout = setTimeout(() => {
       onComplete();
-    }, 3000);
+    }, 5000);
 
     return () => clearTimeout(timeout);
   }, [onComplete]);
@@ -37,15 +37,6 @@ const Planet = ({ label, position, onComplete }) => {
         >
           {label}
         </Text>
-        <OrbitControls 
-          enableZoom
-          enablePan
-          enableRotate
-          zoomSpeed={0.6}
-          rotateSpeed={0.4}
-          maxDistance={50}
-          minDistance={1}
-        />
       </group>
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} intensity={1.5} />
