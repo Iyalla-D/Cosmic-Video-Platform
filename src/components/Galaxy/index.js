@@ -1,11 +1,13 @@
+
 import { useMemo, useRef, useState, useEffect } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, Stars, Points, PointMaterial} from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
 import * as THREE from 'three'
-import Planet from './Planet';
+import Planet from './Planet'
 
-const PARAMS = {
+// Configuration parameters for the galaxy
+const GALAXY_CONFIG = {
   count: 100000,
   size: 0.01,
   radius: 8,
@@ -13,41 +15,56 @@ const PARAMS = {
   spin: 1.2,
   randomness: 0.2,
   randomnessPower: 3,
-  insideColor: '#ff6030',
-  outsideColor: '#391eb9'
+  colors: {
+    inside: '#ff6030',
+    outside: '#391eb9'
+  }
+}
+
+// Camera configuration
+const CAMERA_CONFIG = {
+  initialPosition: new THREE.Vector3(15, 8, 15)
 }
 
 export default function Galaxy({ searchTerm }) {
+  // Refs
   const pointsRef = useRef()
   const orbitControlsRef = useRef()
-  const { camera } = useThree()
   const hasUserInteracted = useRef(false)
-  const originalCameraPos = useRef(new THREE.Vector3(15, 8, 15))
+  const originalCameraPos = useRef(CAMERA_CONFIG.initialPosition)
+
+  // State
   const [zoomState, setZoomState] = useState('idle')
   const [searchTarget, setSearchTarget] = useState(null)
+  const { camera } = useThree()
 
-  // Galaxy generation (moved to proper position)
+  // Generate galaxy geometry
   const [positions, colors] = useMemo(() => {
-    const positions = new Float32Array(PARAMS.count * 3)
-    const colors = new Float32Array(PARAMS.count * 3)
-    const colorInside = new THREE.Color(PARAMS.insideColor)
-    const colorOutside = new THREE.Color(PARAMS.outsideColor)
+    const positions = new Float32Array(GALAXY_CONFIG.count * 3)
+    const colors = new Float32Array(GALAXY_CONFIG.count * 3)
+    const colorInside = new THREE.Color(GALAXY_CONFIG.colors.inside)
+    const colorOutside = new THREE.Color(GALAXY_CONFIG.colors.outside)
 
-    for (let i = 0; i < PARAMS.count; i++) {
+    for (let i = 0; i < GALAXY_CONFIG.count; i++) {
       const i3 = i * 3
-      const branchAngle = ((i % PARAMS.branches) / PARAMS.branches) * Math.PI * 2
-      const radius = Math.pow(Math.random(), PARAMS.randomnessPower) * PARAMS.radius
-      const spin = radius * PARAMS.spin
+      const branchAngle = ((i % GALAXY_CONFIG.branches) / GALAXY_CONFIG.branches) * Math.PI * 2
+      const radius = Math.pow(Math.random(), GALAXY_CONFIG.randomnessPower) * GALAXY_CONFIG.radius
+      const spin = radius * GALAXY_CONFIG.spin
 
-      const randomX = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? -1 : 1) * PARAMS.randomness * radius
-      const randomY = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? -1 : 1) * PARAMS.randomness * radius
-      const randomZ = Math.pow(Math.random(), PARAMS.randomnessPower) * (Math.random() < 0.5 ? -1 : 1) * PARAMS.randomness * radius
+      // Calculate random offsets
+      const randomOffset = {
+        x: Math.pow(Math.random(), GALAXY_CONFIG.randomnessPower) * (Math.random() < 0.5 ? -1 : 1),
+        y: Math.pow(Math.random(), GALAXY_CONFIG.randomnessPower) * (Math.random() < 0.5 ? -1 : 1),
+        z: Math.pow(Math.random(), GALAXY_CONFIG.randomnessPower) * (Math.random() < 0.5 ? -1 : 1)
+      }
 
-      positions[i3] = Math.cos(branchAngle + spin) * radius + randomX
-      positions[i3 + 1] = randomY
-      positions[i3 + 2] = Math.sin(branchAngle + spin) * radius + randomZ
+      // Set positions
+      positions[i3] = Math.cos(branchAngle + spin) * radius + randomOffset.x * GALAXY_CONFIG.randomness * radius
+      positions[i3 + 1] = randomOffset.y * GALAXY_CONFIG.randomness * radius
+      positions[i3 + 2] = Math.sin(branchAngle + spin) * radius + randomOffset.z * GALAXY_CONFIG.randomness * radius
 
-      const mixedColor = colorInside.clone().lerp(colorOutside, radius / PARAMS.radius)
+      // Set colors
+      const mixedColor = colorInside.clone().lerp(colorOutside, radius / GALAXY_CONFIG.radius)
       colors[i3] = mixedColor.r
       colors[i3 + 1] = mixedColor.g
       colors[i3 + 2] = mixedColor.b
@@ -56,32 +73,32 @@ export default function Galaxy({ searchTerm }) {
     return [positions, colors]
   }, [])
 
+  // Handle search term changes
   useEffect(() => {
-    if (searchTerm) {
-      // Create position slightly outside galaxy for better visibility
-      const randomPosition = new THREE.Vector3()
-        .randomDirection()
-        .multiplyScalar(PARAMS.radius * 0.8)
-        .addScalar(PARAMS.radius * 0.2)
+    if (!searchTerm) return
 
-      setSearchTarget({
-        position: randomPosition,
-        label: searchTerm
-      })
-      setZoomState('zooming-in')
-      hasUserInteracted.current = true
-    }
+    const randomPosition = new THREE.Vector3()
+      .randomDirection()
+      .multiplyScalar(GALAXY_CONFIG.radius * 0.8)
+      .addScalar(GALAXY_CONFIG.radius * 0.2)
+
+    setSearchTarget({
+      position: randomPosition,
+      label: searchTerm
+    })
+    setZoomState('zooming-in')
+    hasUserInteracted.current = true
   }, [searchTerm])
 
+  // Animation frame updates
   useFrame((state, delta) => {
-    // Handle galaxy rotation and camera movements in a single frame handler
+    // Galaxy rotation
     if (zoomState === 'idle') {
       pointsRef.current.rotation.y += 0.0005
     }
 
-    // Handle camera animations
+    // Camera animations
     if (zoomState === 'zooming-in' && searchTarget) {
-      // Create offset position for better viewing angle
       const targetPosition = searchTarget.position.clone()
         .add(new THREE.Vector3(0, 1, -2).normalize().multiplyScalar(3))
 
@@ -103,7 +120,7 @@ export default function Galaxy({ searchTerm }) {
       }
     }
 
-    // Initial camera position handling
+    // Initial camera positioning
     if (!hasUserInteracted.current) {
       camera.position.lerp(originalCameraPos.current, delta)
       camera.lookAt(0, 0, 0)
@@ -116,6 +133,7 @@ export default function Galaxy({ searchTerm }) {
 
   return (
     <>
+      {/* Post-processing effects */}
       <EffectComposer>
         <Bloom 
           intensity={zoomState !== 'idle' ? 1.5 : 0.5} 
@@ -124,10 +142,12 @@ export default function Galaxy({ searchTerm }) {
         />
       </EffectComposer>
 
+      {/* Scene setup */}
       <color attach="background" args={['#000']} />
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} intensity={1.5} />
       
+      {/* Galaxy visualization */}
       {zoomState === 'idle' && (
         <>
           <Stars radius={300} depth={60} count={8000} factor={6} saturation={0} fade />
@@ -135,7 +155,7 @@ export default function Galaxy({ searchTerm }) {
             <Points ref={pointsRef} positions={positions} colors={colors}>
               <PointMaterial
                 transparent
-                size={PARAMS.size}
+                size={GALAXY_CONFIG.size}
                 sizeAttenuation={true}
                 depthWrite={false}
                 vertexColors
@@ -146,6 +166,7 @@ export default function Galaxy({ searchTerm }) {
         </>
       )}
       
+      {/* Search result planet */}
       {searchTarget && (
         <Planet
           label={searchTarget.label}
@@ -154,6 +175,7 @@ export default function Galaxy({ searchTerm }) {
         />
       )}
 
+      {/* Controls */}
       <OrbitControls
         ref={orbitControlsRef}
         enableDamping
