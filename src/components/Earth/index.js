@@ -19,7 +19,7 @@ export default function Earth() {
     // Hooks and State
     const { camera } = useThree();
     const navigate = useNavigate();
-    
+
     const [videoTextures, setVideoTextures] = useState([]);
     const [quality, setQuality] = useState(1);
     const [isUserInteracting, setIsUserInteracting] = useState(false);
@@ -42,7 +42,7 @@ export default function Earth() {
     // Cache Management
     const manageCache = (newVideoId) => {
         const cache = videoElementCache.current;
-        
+
         if (cache.has(newVideoId)) {
             cache.get(newVideoId).lastUsed = Date.now();
         }
@@ -52,7 +52,7 @@ export default function Earth() {
             const lruEntry = entries.reduce((oldest, current) => 
                 current[1].lastUsed < oldest[1].lastUsed ? current : oldest
             );
-            
+
             const [lruKey, lruValue] = lruEntry;
             lruValue.videoElement.pause();
             lruValue.texture.dispose();
@@ -63,7 +63,7 @@ export default function Earth() {
 
     const createVideoTexture = (videoId) => {
         const cache = videoElementCache.current;
-        
+
         if (cache.has(videoId)) {
             const entry = cache.get(videoId);
             entry.lastUsed = Date.now();
@@ -91,7 +91,7 @@ export default function Earth() {
                     videoElement,
                     lastUsed: Date.now() 
                 };
-                
+
                 cache.set(videoId, videoData);
                 manageCache(videoId);
                 resolve(videoData);
@@ -110,7 +110,7 @@ export default function Earth() {
             setIsUserInteracting(true);
             clearTimeout(rotationTimeoutRef.current);
         },
-        
+
         end: () => {
             rotationTimeoutRef.current = setTimeout(() => {
                 setIsUserInteracting(false);
@@ -137,7 +137,7 @@ export default function Earth() {
             if (intersect?.uv) {
                 const segment = randomizedSegmentsRef.current
                     .find(s => intersect.uv.y > s.minY && intersect.uv.y <= s.maxY);
-                
+
                 mouseDownSegmentRef.current = segment?.id || null;
             }
         },
@@ -164,7 +164,7 @@ export default function Earth() {
                     subsectionVideo && navigate(`/video/${subsectionVideo.id}`);
                 }
             }
-            
+
             mouseDownSegmentRef.current = null;
         },
 
@@ -225,12 +225,12 @@ export default function Earth() {
     // Effects and Frame Loop
     useEffect(() => {
         let isMounted = true;
-       
+
         const initializeEarth = async () => {
             try {
                 const response = await fetch('http://localhost:5000/videos');
                 const videos = await response.json();
-                
+
                 const allPositions = Array.from({ length: TOTAL_POSITIONS }, (_, i) => i);
                 const shuffledPositions = shuffleArray(allPositions);
 
@@ -248,12 +248,12 @@ export default function Earth() {
                         textureIndex: -1 // -1 indicates empty slot
                     }))
                 }));
-    
+
                 // Distribute videos randomly
                 shuffledPositions.slice(0, videos.length).forEach((position, videoIndex) => {
                     const segmentIndex = Math.floor(position / SUBSECTIONS_PER_SEGMENT);
                     const subsectionIndex = position % SUBSECTIONS_PER_SEGMENT;
-                    
+
                     segments[segmentIndex].videos[subsectionIndex] = {
                         id: videos[videoIndex].id,
                         texture: textures[videoIndex],
@@ -321,58 +321,15 @@ export default function Earth() {
             return new THREE.MeshBasicMaterial({ color: "gray" });
         }
 
+        const uniforms = videoTextures.reduce((acc, { texture }, idx) => ({
+            ...acc,
+            [`videoTexture${idx}`]: { value: texture }
+        }), {});
+
         return new THREE.ShaderMaterial({
-            uniforms: videoTextures.reduce((acc, { texture }, idx) => ({
-                ...acc,
-                [`videoTexture${idx}`]: { value: texture }
-            }), {}),
-            
-            vertexShader: `
-                varying vec2 vUv;
-                void main() {
-                    vUv = uv;
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                }
-            `,
-            
-            fragmentShader: `
-                varying vec2 vUv;
-                ${videoTextures.map((_, idx) => `uniform sampler2D videoTexture${idx};`).join("\n")}
-
-                void main() {
-                vec4 color = vec4(0.0);
-                float subsectionWidth = 1.0 / ${SUBSECTIONS_PER_SEGMENT}.0;
-
-                ${randomizedSegmentsRef.current.map((segment) => `
-                    if (vUv.y > ${segment.minY} && vUv.y <= ${segment.maxY}) {
-                        float segmentHeight = ${segment.maxY} - ${segment.minY};
-                        int subsectionIndex = int(floor(vUv.x / subsectionWidth));
-                        vec2 localUv;
-
-                        // Calculate local UV coordinates
-                        localUv.x = (vUv.x - (subsectionWidth * float(subsectionIndex))) * ${SUBSECTIONS_PER_SEGMENT}.0;
-                        localUv.y = (vUv.y - ${segment.minY}) / segmentHeight;
-
-                        // Explicit texture selection
-                        switch(subsectionIndex) {
-                                ${segment.videos.map((video, i) => 
-                                    video.textureIndex >= 0 ? `
-                                        case ${i}:
-                                            color = texture2D(videoTexture${video.textureIndex}, localUv);
-                                            break;
-                                    ` : `
-                                        case ${i}:
-                                            color = vec4(0.0); // Empty slot color
-                                            break;
-                                    `
-                                ).join('\n')}
-                            }
-                        }
-                    `).join(" else ")}
-                    
-                    gl_FragColor = color;
-                }
-            `,
+            uniforms,
+            vertexShader,
+            fragmentShader: createFragmentShader(videoTextures, randomizedSegmentsRef.current, SUBSECTIONS_PER_SEGMENT),
             side: THREE.DoubleSide
         });
     }, [videoTextures]);
@@ -382,7 +339,7 @@ export default function Earth() {
             <ambientLight intensity={2} />
             <pointLight color="#f6f3ea" position={[2, 0, 5]} intensity={50} />
             <Stars radius={300} depth={60} count={10000} factor={7} saturation={0} fade />
-            
+
             <mesh ref={earthRef}>
                 <primitive attach="geometry" object={sphereGeometry} />
                 <primitive attach="material" object={videoMaterial} />
