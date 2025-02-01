@@ -1,11 +1,13 @@
+
 import { useRef, useEffect } from 'react';
-import { Text } from '@react-three/drei';
+import { Text, Stars, OrbitControls } from '@react-three/drei';
+import * as THREE from 'three';
 
 const Planet = ({ label, position, onComplete }) => {
   const groupRef = useRef();
+  const sphereRef = useRef();
 
   useEffect(() => {
-    // Trigger completion callback after animation
     const timeout = setTimeout(() => {
       onComplete();
     }, 3000);
@@ -14,21 +16,40 @@ const Planet = ({ label, position, onComplete }) => {
   }, [onComplete]);
 
   return (
-    <group ref={groupRef} position={position}>
-      <mesh>
-        <sphereGeometry args={[0.2, 32, 32]} />
-        <meshStandardMaterial color="gold" metalness={0.8} roughness={0.2} />
-      </mesh>
-      <Text
-        position={[0, 0.5, 0]}
-        color="white"
-        fontSize={0.3}
-        anchorX="center"
-        anchorY="middle"
-      >
-        {label}
-      </Text>
-    </group>
+    <>
+      <Stars radius={300} depth={60} count={10000} factor={7} saturation={0} fade />
+      <group ref={groupRef} position={position}>
+        <mesh ref={sphereRef}>
+          <sphereGeometry args={[0.5, 32, 32]} />
+          <meshStandardMaterial 
+            color="gold" 
+            metalness={0.8} 
+            roughness={0.2}
+            normalScale={new THREE.Vector2(0.15, 0.15)} 
+          />
+        </mesh>
+        <Text
+          position={[0, 1, 0]}
+          color="white"
+          fontSize={0.3}
+          anchorX="center"
+          anchorY="middle"
+        >
+          {label}
+        </Text>
+        <OrbitControls 
+          enableZoom
+          enablePan
+          enableRotate
+          zoomSpeed={0.6}
+          rotateSpeed={0.4}
+          maxDistance={50}
+          minDistance={1}
+        />
+      </group>
+      <ambientLight intensity={0.5} />
+      <pointLight position={[10, 10, 10]} intensity={1.5} />
+    </>
   );
 };
 
