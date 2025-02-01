@@ -25,7 +25,7 @@ function App() {
               }
             />
             <Route
-              path="/"
+              path="/galaxy"
               element={
                 <CanvasWrapper camera={{ position: [30, 20, 30], fov: 60 }}>
                   <Galaxy searchTerm={searchTerm} />
