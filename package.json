@@ -1,0 +1,53 @@
+{
+  "name": "electric-sheep-frontend",
+  "proxy": "http://localhost:5000",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@craco/craco": "^7.1.0",
+    "@react-spring/web": "^9.7.5",
+    "@react-three/drei": "^9.121.3",
+    "@react-three/fiber": "^8.17.12",
+    "@react-three/postprocessing": "^2.19.1",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "axiom": "^0.1.6",
+    "axios": "^1.7.9",
+    "dat.gui": "^0.7.9",
+    "leva": "^0.10.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.21.2",
+    "react-scripts": "^5.0.1",
+    "react-three-fiber": "^6.0.13",
+    "styled-components": "^6.0.8",
+    "three": "^0.171.0",
+    "three-mesh-bvh": "^0.8.3",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
