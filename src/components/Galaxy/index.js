@@ -1,19 +1,12 @@
 import { useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Stars } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
-import VideoSolarSystem from './VideoSolarSystem';
 
 const GALAXY_CONFIG = {
   starsCount: 100000,
   starsSize: 0.005,
-  radius: 20,
-  categories: [
-    { name: 'Sports', position: new THREE.Vector3(0, 0, 0) },
-    { name: 'Music', position: new THREE.Vector3(30, 0, 0) },
-    { name: 'Gaming', position: new THREE.Vector3(-30, 0, 0) },
-    { name: 'Education', position: new THREE.Vector3(0, 0, 30) }
-  ]
+  radius: 20
 };
 
 export default function Galaxy() {
@@ -51,10 +44,8 @@ export default function Galaxy() {
 
   return (
     <>
-      <Stars radius={300} depth={60} count={10000} factor={7} saturation={0} fade />
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} intensity={1.5} />
-
       <group>
         <points ref={pointsRef}>
           <bufferGeometry>
@@ -79,16 +70,7 @@ export default function Galaxy() {
             opacity={0.8}
           />
         </points>
-
-        {GALAXY_CONFIG.categories.map((category) => (
-          <VideoSolarSystem
-            key={category.name}
-            position={category.position}
-            category={category.name}
-          />
-        ))}
       </group>
-
       <OrbitControls 
         enableZoom
         enablePan
