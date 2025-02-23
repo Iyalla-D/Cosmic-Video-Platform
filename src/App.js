@@ -17,7 +17,7 @@ function App() {
         <div className="main-content">
           <Routes>
             <Route
-              path="/"
+              path="/earth"
               element={
                 <CanvasWrapper camera={{ position: [0, 0, 8], fov: 90 }}>
                   <Earth />
@@ -25,7 +25,7 @@ function App() {
               }
             />
             <Route
-              path="/galaxy"
+              path="/"
               element={
                 <CanvasWrapper camera={{ position: [30, 20, 30], fov: 60 }}>
                   <Galaxy searchTerm={searchTerm} />
