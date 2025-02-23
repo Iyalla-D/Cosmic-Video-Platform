@@ -82,9 +82,10 @@ export default function Galaxy() {
       const scale = 1 + Math.sin(time.current) * 0.2;
       pointsRef.current.material.size = PARAMS.size * scale;
 
-      // Color variation based on mouse position
-      const hue = (mouse.x * 0.5 + 0.5) * 0.2;
-      pointsRef.current.material.color.setHSL(hue, 0.8, 0.5);
+      // Pulsing effect with purple color
+      const pulseColor = new THREE.Color("#391eb9");
+      const brightness = 0.3 + Math.sin(time.current) * 0.1;
+      pointsRef.current.material.color.copy(pulseColor).multiplyScalar(brightness);
     }
 
     if (!hasUserInteracted.current) {
