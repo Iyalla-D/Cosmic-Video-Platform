@@ -119,9 +119,10 @@ export default function Galaxy() {
       <EffectComposer>
         <Bloom
           intensity={1.5}
-          luminanceThreshold={0.1}
-          luminanceSmoothing={0.9}
-          height={300}
+          luminanceThreshold={0.4}
+          luminanceSmoothing={0.85}
+          height={window.innerHeight}
+          radius={0.85}
         />
       </EffectComposer>
 
@@ -150,8 +151,12 @@ export default function Galaxy() {
         ref={orbitControlsRef}
         enableDamping
         dampingFactor={0.05}
-        minDistance={5}
-        maxDistance={50}
+        rotateSpeed={0.5}
+        zoomSpeed={0.8}
+        minDistance={8}
+        maxDistance={100}
+        screenSpacePanning={false}
+        maxPolarAngle={(Math.PI / 2) - (Math.PI / 360)}
         onStart={() => (hasUserInteracted.current = true)}
         mouseButtons={{
           LEFT: THREE.MOUSE.ROTATE,
