@@ -126,24 +126,7 @@ export default function Galaxy() {
         }}
       />
 
-      {/* Clickable Marker */}
-      <mesh
-        position={markerPosition}
-        onClick={() => {
-          // Optionally, you can perform a camera transition here before navigation.
-          navigate("/solarsystem");
-        }}
-        // Change the cursor on hover
-        onPointerOver={(e) => (document.body.style.cursor = "pointer")}
-        onPointerOut={(e) => (document.body.style.cursor = "auto")}
-      >
-        <sphereGeometry args={[0.3, 16, 16]} />
-        <meshStandardMaterial
-          color="red"
-          emissive="red"
-          emissiveIntensity={0.7}
-        />
-      </mesh>
+      
     </>
   );
 }
