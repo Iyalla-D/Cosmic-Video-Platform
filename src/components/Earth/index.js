@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState, useMemo } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls, Stars } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei";
+import StarField from "./StarField";
 import * as THREE from "three";
 import { useNavigate } from "react-router-dom";
 import { vertexShader, createFragmentShader } from "./shaders/globeShader";
