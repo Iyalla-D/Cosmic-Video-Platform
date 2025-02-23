@@ -2,6 +2,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Stars, Points, PointMaterial } from "@react-three/drei";
+import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { useNavigate } from "react-router-dom";
 
@@ -90,6 +91,14 @@ export default function Galaxy() {
       <color attach="background" args={["#000"]} />
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} intensity={1.5} />
+      <EffectComposer>
+        <Bloom 
+          intensity={1.5}
+          luminanceThreshold={0.1}
+          luminanceSmoothing={0.9}
+          height={300}
+        />
+      </EffectComposer>
 
       <Stars
         radius={300}
