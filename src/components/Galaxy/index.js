@@ -82,8 +82,8 @@ export default function Galaxy() {
       const scale = 1 + Math.sin(time.current) * 0.2;
       pointsRef.current.material.size = PARAMS.size * scale;
 
-      // Pulsing effect with purple color
-      const pulseColor = new THREE.Color("#391eb9");
+      // Pulsing effect with red color
+      const pulseColor = new THREE.Color("#ff6030");
       const minBrightness = 0.8;
       const pulseAmount = 0.4;
       const brightness = Math.max(minBrightness, 1.5 + Math.sin(time.current) * pulseAmount);
