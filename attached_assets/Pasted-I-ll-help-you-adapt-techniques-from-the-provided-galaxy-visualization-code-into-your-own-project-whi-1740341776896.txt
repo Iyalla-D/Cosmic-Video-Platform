@@ -1,0 +1,201 @@
+I'll help you adapt techniques from the provided galaxy visualization code into your own project while maintaining your existing functionality. Here are key elements and how to integrate them:
+
+1. Procedural Galaxy Generation Technique (from galaxy.js)
+Adaptation for Your Project:
+
+javascript
+Copy
+// Use spiral distribution for your star/planet positions
+function generateSpiralPositions(numObjects, arms) {
+  const positions = [];
+  for(let i = 0; i < numObjects; i++) {
+    const angle = (i % arms) * Math.PI * 2 / arms;
+    const radius = Math.sqrt(i/numObjects) * GALAXY_RADIUS;
+    positions.push(
+      new THREE.Vector3(
+        radius * Math.cos(angle),
+        radius * Math.sin(angle),
+        gaussianRandom(0, GALAXY_THICKNESS)
+      )
+    );
+  }
+  return positions;
+}
+2. Layered Bloom Effect (from main.js)
+Enhance Your Planet Zoom:
+
+javascript
+Copy
+// Add bloom effect to your planet view
+const bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  1.5, // strength
+  0.4, // radius
+  0.85 // threshold
+);
+
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+composer.addPass(bloomPass);
+
+// In your useFrame hook
+useFrame(() => {
+  composer.render();
+});
+3. Dynamic Scaling (from star.js and haze.js)
+Improve Your Planet Transitions:
+
+javascript
+Copy
+function updatePlanetScale(camera, planet) {
+  const distance = camera.position.distanceTo(planet.position);
+  const scale = THREE.MathUtils.lerp(0.5, 2.0, Math.min(distance / 1000, 1));
+  planet.scale.set(scale, scale, scale);
+  
+  // Fade in/out effect
+  planet.material.opacity = THREE.MathUtils.smoothstep(distance, 500, 1000);
+}
+4. Text Label Orientation Fix (from main.js camera setup)
+Fix Reversed Text Issue:
+
+javascript
+Copy
+function FloatingLabel({ position, text }) {
+  const textRef = useRef();
+  const { camera } = useThree();
+
+  useFrame(() => {
+    // Billboard text to face camera
+    textRef.current.quaternion.copy(camera.quaternion);
+    // Maintain position offset
+    textRef.current.position.copy(position).add(
+      new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion)
+    );
+  });
+
+  return (
+    <Text
+      ref={textRef}
+      fontSize={0.4}
+      color="white"
+      anchorX="center"
+      anchorY="middle"
+    >
+      {text}
+    </Text>
+  );
+}
+5. Interactive Object Management (from galaxy.js generation)
+Enhance Search Results Display:
+
+javascript
+Copy
+const SearchResults = ({ term }) => {
+  const [planets, setPlanets] = useState([]);
+
+  useEffect(() => {
+    const generateSearchResult = () => ({
+      position: new THREE.Vector3(
+        (Math.random() - 0.5) * 50,
+        (Math.random() - 0.5) * 50,
+        (Math.random() - 0.5) * 50
+      ),
+      label: `${term} ${Math.floor(Math.random() * 100)}`
+    });
+
+    setPlanets(Array(5).fill().map(generateSearchResult));
+  }, [term]);
+
+  return (
+    <>
+      {planets.map((planet, i) => (
+        <Planet 
+          key={i}
+          position={planet.position}
+          label={planet.label}
+          onClick={() => handlePlanetSelect(planet)}
+        />
+      ))}
+    </>
+  );
+};
+6. Smooth Camera Transitions (from main.js controls)
+Enhance Your Zoom Animation:
+
+javascript
+Copy
+function useSmoothCamera(target, duration = 2) {
+  const { camera } = useThree();
+  const startPosition = useRef(new THREE.Vector3());
+  const startTime = useRef(0);
+
+  useFrame((state, delta) => {
+    if(target) {
+      if(startTime.current === 0) {
+        startPosition.current.copy(camera.position);
+        startTime.current = state.clock.elapsedTime;
+      }
+
+      const t = (state.clock.elapsedTime - startTime.current) / duration;
+      camera.position.lerpVectors(
+        startPosition.current,
+        target.position.clone().add(new THREE.Vector3(0, 3, -5)),
+        THREE.MathUtils.smoothstep(t, 0, 1)
+      );
+
+      camera.lookAt(target.position);
+      
+      if(t >= 1) {
+        startTime.current = 0;
+      }
+    }
+  });
+}
+7. Performance Optimization (from haze.js and star.js)
+Implement for Your Stars/Planets:
+
+javascript
+Copy
+const StarField = () => {
+  const points = useRef();
+  const positions = useMemo(() => 
+    Array(5000).fill().map(() => [
+      (Math.random() - 0.5) * 1000,
+      (Math.random() - 0.5) * 1000,
+      (Math.random() - 0.5) * 1000
+    ]), []);
+
+  return (
+    <points ref={points}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          count={positions.length}
+          array={new Float32Array(positions.flat())}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial 
+        size={0.5} 
+        color="white" 
+        transparent 
+        opacity={0.8}
+      />
+    </points>
+  );
+};
+These adaptations maintain your project's core functionality while integrating proven techniques from the galaxy visualization code for:
+
+Better performance with procedural generation and instancing
+
+Improved visual quality with proper bloom effects
+
+More natural camera movements
+
+Stable text labeling system
+
+Interactive element management
+
+Smooth transitions between views
+
+Would you like me to elaborate on any particular aspect or help integrate specific features?
