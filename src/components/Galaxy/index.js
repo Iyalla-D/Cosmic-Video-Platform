@@ -21,9 +21,10 @@ const PARAMS = {
 export default function Galaxy() {
   const pointsRef = useRef();
   const orbitControlsRef = useRef();
-  const { camera } = useThree();
+  const { camera, mouse } = useThree();
   const hasUserInteracted = useRef(false);
   const navigate = useNavigate();
+  const time = useRef(0);
 
   // Galaxy generation
   const [positions, colors] = useMemo(() => {
@@ -71,9 +72,19 @@ export default function Galaxy() {
     return [positions, colors];
   }, []);
 
-  useFrame(() => {
+  useFrame((state) => {
+    time.current += 0.005;
+    
     if (pointsRef.current) {
-      pointsRef.current.rotation.y += 0.0005; // Slow rotation
+      pointsRef.current.rotation.y += 0.0005;
+      
+      // Pulse effect
+      const scale = 1 + Math.sin(time.current) * 0.2;
+      pointsRef.current.material.size = PARAMS.size * scale;
+      
+      // Color variation based on mouse position
+      const hue = (mouse.x * 0.5 + 0.5) * 0.2;
+      pointsRef.current.material.color.setHSL(hue, 0.8, 0.5);
     }
 
     if (!hasUserInteracted.current) {
