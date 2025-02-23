@@ -74,14 +74,14 @@ export default function Galaxy() {
 
   useFrame((state) => {
     time.current += 0.005;
-    
+
     if (pointsRef.current) {
-      pointsRef.current.rotation.y += 0.0005;
-      
+      pointsRef.current.rotation.y += 0.0003;
+
       // Pulse effect
       const scale = 1 + Math.sin(time.current) * 0.2;
       pointsRef.current.material.size = PARAMS.size * scale;
-      
+
       // Color variation based on mouse position
       const hue = (mouse.x * 0.5 + 0.5) * 0.2;
       pointsRef.current.material.color.setHSL(hue, 0.8, 0.5);
@@ -103,7 +103,7 @@ export default function Galaxy() {
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} intensity={1.5} />
       <EffectComposer>
-        <Bloom 
+        <Bloom
           intensity={1.5}
           luminanceThreshold={0.1}
           luminanceSmoothing={0.9}
