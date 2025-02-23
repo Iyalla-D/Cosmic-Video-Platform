@@ -367,31 +367,18 @@ export default function Earth() {
         });
     }, [videoTextures]);
 
-    const composer = useRef();
-    
-    useEffect(() => {
-        const { gl, size } = renderer;
-        composer.current = new EffectComposer(gl);
-        composer.current.addPass(new RenderPass(scene, camera));
-        composer.current.addPass(new UnrealBloomPass(
-            new THREE.Vector2(size.width, size.height),
-            1.5, // strength
-            0.4, // radius
-            0.85 // threshold
-        ));
-    }, []);
-
-    useFrame(() => {
-        if (composer.current) {
-            composer.current.render();
-        }
-    });
-
     return (
         <>
             <ambientLight intensity={2} />
             <pointLight color="#f6f3ea" position={[2, 0, 5]} intensity={50} />
-            <StarField />
+            <Stars
+                radius={300}
+                depth={60}
+                count={10000}
+                factor={7}
+                saturation={0}
+                fade
+            />
 
             <mesh ref={earthRef}>
                 <primitive attach="geometry" object={sphereGeometry} />
