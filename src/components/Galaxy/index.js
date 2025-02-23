@@ -5,6 +5,7 @@ import { OrbitControls, Stars, Points, PointMaterial } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
 import * as THREE from "three";
 import { useNavigate } from "react-router-dom";
+import gsap from "gsap";
 
 const PARAMS = {
   count: 100000,
@@ -91,8 +92,18 @@ export default function Galaxy() {
     }
 
     if (!hasUserInteracted.current) {
-      camera.position.set(15, 8, 15);
-      camera.lookAt(0, 0, 0);
+      // Smooth camera movement
+      gsap.to(camera.position, {
+        duration: 2,
+        x: 15 + Math.sin(time.current * 0.1) * 2,
+        y: 8 + Math.cos(time.current * 0.1),
+        z: 15 + Math.sin(time.current * 0.15) * 2,
+        ease: "power2.inOut"
+      });
+      
+      // Smooth camera rotation
+      const targetPosition = new THREE.Vector3(0, 0, 0);
+      camera.lookAt(targetPosition);
     }
   });
 
