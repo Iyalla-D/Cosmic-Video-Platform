@@ -111,39 +111,11 @@ export default function Galaxy() {
   // You can change these coordinates to place the marker where you prefer.
   const markerPosition = [5, 0, -5];
 
-  // Create haze particles
-  const hazeCount = 50;
-  const hazePositions = useMemo(() => {
-    const positions = new Float32Array(hazeCount * 3);
-    for (let i = 0; i < hazeCount; i++) {
-      const radius = Math.random() * PARAMS.radius * 1.5;
-      const angle = Math.random() * Math.PI * 2;
-      const i3 = i * 3;
-      positions[i3] = Math.cos(angle) * radius;
-      positions[i3 + 1] = (Math.random() - 0.5) * 2;
-      positions[i3 + 2] = Math.sin(angle) * radius;
-    }
-    return positions;
-  }, []);
-
   return (
     <>
       <color attach="background" args={["#000"]} />
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} intensity={1.5} />
-      
-      {/* Haze/dust cloud layer */}
-      <Points positions={hazePositions}>
-        <PointMaterial
-          transparent
-          color="#3b68d9"
-          size={0.6}
-          sizeAttenuation={true}
-          depthWrite={false}
-          opacity={0.25}
-          blending={THREE.AdditiveBlending}
-        />
-      </Points>
       <EffectComposer>
         <Bloom
           intensity={1.5}
